@@ -1,77 +1,36 @@
-name: demo
+name: agents-otel-local
 
 services:
-  loki:
-    image: grafana/loki:3.7.1
-    command:
-      - -config.file=/etc/loki/config.yaml
+  lgtm:
+    image: ${LGTM_IMAGE:-docker.io/grafana/otel-lgtm:0.28.0}
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3100:3100" # Loki HTTP API
-    volumes:
-      - ./loki/config.yaml:/etc/loki/config.yaml:ro
-      - loki-data:/loki
-
-  jaeger:
-    image: cr.jaegertracing.io/jaegertracing/jaeger:2.17.0
-    command:
-      - --set=receivers.otlp.protocols.grpc.endpoint=0.0.0.0:4317
-      - --set=receivers.otlp.protocols.http.endpoint=0.0.0.0:4318
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:16686:16686" # Jaeger UI
-
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.151.0
-    command:
-      - --config=/etc/otelcol-contrib/config.yaml
-    restart: unless-stopped
-    depends_on:
-      - jaeger
-      - loki
-    ports:
+      - "127.0.0.1:3000:3000" # Grafana UI
+      - "127.0.0.1:3100:3100" # Loki API
+      - "127.0.0.1:3200:3200" # Tempo API
+      - "127.0.0.1:4040:4040" # Pyroscope API
       - "127.0.0.1:4317:4317" # OTLP gRPC ingest for Codex CLI
       - "127.0.0.1:4318:4318" # OTLP HTTP ingest for Copilot CLI
-      - "127.0.0.1:9464:9464" # Prometheus scrape endpoint for collector metrics
-      - "127.0.0.1:13133:13133" # Collector health check endpoint
-    volumes:
-      - ./otel/collector-config.yaml:/etc/otelcol-contrib/config.yaml:ro
-
-  prometheus:
-    image: prom/prometheus:v3.11.3
-    command:
-      - --config.file=/etc/prometheus/prometheus.yml
-      - --storage.tsdb.path=/prometheus
-      - --web.enable-lifecycle
-    restart: unless-stopped
-    depends_on:
-      - otel-collector
-      - loki
-      - jaeger
-    ports:
       - "127.0.0.1:9090:9090" # Prometheus UI and API
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus-data:/prometheus
-
-  grafana:
-    image: grafana/grafana:12.4.0
-    restart: unless-stopped
-    depends_on:
-      - prometheus
-      - loki
-      - jaeger
+      - ./otel/collector-config.yaml:/otel-lgtm/otelcol-config.yaml:ro
+      - ./prometheus/prometheus.yml:/otel-lgtm/prometheus.yaml:ro
+      - ./grafana/provisioning/dashboards/dashboards.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/agents.yaml:ro
+      - ./grafana/provisioning/dashboards-json:/otel-lgtm/grafana/conf/provisioning/dashboards-json:ro
+      - lgtm-data:/data
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: admin
       GF_USERS_ALLOW_SIGN_UP: "false"
-    ports:
-      - "127.0.0.1:3000:3000" # Grafana UI
-    volumes:
-      - ./grafana/provisioning:/etc/grafana/provisioning:ro
-      - grafana-data:/var/lib/grafana
+      GF_PATHS_DATA: /data/grafana
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - test -f /tmp/ready && /otel-lgtm/docker/healthcheck.sh
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 10s
 
 volumes:
-  grafana-data: {}
-  loki-data: {}
-  prometheus-data: {}
+  lgtm-data: {}

@@ -1,12 +1,23 @@
 # OTEL for agents
 
-This directory provides local OTEL stack for both Codex CLI and GitHub Copilot CLI.
+This directory provides one local OTEL stack for both Codex CLI and GitHub Copilot CLI.
 
-The repo is organized around stack configuration plus CLI wrappers:
+The stack uses `grafana/otel-lgtm`, which bundles:
 
-- `compose.yaml` defines local observability stack
-- `otel/`, `prometheus/`, `grafana/`, and `loki/` contain service-specific config
-- `scripts/` contains the CLI wrapper and helper scripts
+- Grafana
+- Loki
+- Prometheus
+- Tempo
+- Pyroscope
+- OpenTelemetry Collector
+
+Repo-owned configuration is shared by both agents:
+
+- `compose.yaml` starts the LGTM container
+- `otel/collector-config.yaml` defines OTLP ingest and signal routing
+- `prometheus/prometheus.yml` scrapes the collector's Prometheus exporter
+- `grafana/provisioning/dashboards-json/` contains the Codex and Copilot dashboards
+- `scripts/` contains CLI wrappers and health checks
 
 ## Prerequisites
 
@@ -14,14 +25,14 @@ The repo is organized around stack configuration plus CLI wrappers:
 - On macOS, a running Podman machine: `podman machine init` once, then `podman machine start`
 - `curl` if you want to use `scripts/check-otel.sh`
 - Codex CLI installed as `codex`
-- GitHub Copilot CLI installed as `copilot`
+- GitHub Copilot CLI installed as `copilot`, available through `gh copilot`, or exposed through `COPILOT_BIN`
 
 ## Stack lifecycle
 
 Start the OTEL stack:
 
 ```bash
-podman compose -f compose.yaml up -d
+podman compose -f compose.yaml up --wait --wait-timeout 120
 ```
 
 Stop it:
@@ -33,29 +44,40 @@ podman compose -f compose.yaml down
 Follow logs:
 
 ```bash
-podman compose -f compose.yaml logs -f otel-collector loki grafana prometheus jaeger
+podman compose -f compose.yaml logs -f lgtm
 ```
 
-## Helper scripts
+Verify exposed services and provisioned dashboards:
 
-The remaining scripts add actual behavior beyond plain `podman compose`:
+```bash
+./scripts/check-otel.sh
+```
 
-- `scripts/check-otel.sh`
-- `scripts/codex-cli-otel.sh`
-- `scripts/copilot-cli-otel.sh`
+The Compose healthcheck uses the LGTM image's internal `/otel-lgtm/docker/healthcheck.sh` script.
 
-## Grafana
+## Endpoints
 
-Grafana is provisioned with these datasources:
+- Grafana: `http://127.0.0.1:3000` (`admin` / `admin`)
+- Prometheus: `http://127.0.0.1:9090`
+- Loki API: `http://127.0.0.1:3100`
+- Tempo API: `http://127.0.0.1:3200`
+- Pyroscope API: `http://127.0.0.1:4040`
+- OTLP gRPC: `http://127.0.0.1:4317`
+- OTLP HTTP: `http://127.0.0.1:4318`
 
-- `Prometheus`
-- `Loki`
-- `Jaeger`
-
-The `Agents` folder includes these dashboards:
+Grafana is provisioned with the bundled LGTM datasources. The `Agents` folder includes:
 
 - `Codex CLI Observability`
 - `Copilot CLI Observability`
+
+## Signal flow
+
+- Codex sends logs, metrics, and traces to OTLP/gRPC on `127.0.0.1:4317`.
+- Copilot sends OTLP/HTTP to `127.0.0.1:4318`.
+- The shared collector sends traces to Tempo, logs to Loki, and metrics to a Prometheus scrape endpoint.
+- Prometheus scrapes the collector on the internal `127.0.0.1:9464` endpoint.
+- The collector also uses `spanmetrics` so Copilot trace activity can be graphed as Prometheus metrics.
+- Copilot token panels use the `gen_ai.client.token.usage` OTLP metric after Prometheus name normalization.
 
 ## Codex CLI
 
@@ -66,32 +88,12 @@ Run Codex CLI with telemetry enabled:
 ./scripts/codex-cli-otel.sh exec "summarize this repository"
 ```
 
-Notes:
-
-- The collector listens on `127.0.0.1:4317` for Codex OTLP gRPC export.
-- Grafana includes the `Codex CLI Observability` dashboard in the `Agents` folder.
+The wrapper applies one-off Codex config overrides and does not edit `~/.codex/config.toml`.
+It enables `otel.log_user_prompt=true`, so raw prompts can appear in Loki/Grafana.
 
 Official reference:
 
 - https://developers.openai.com/codex/config-reference
-
-Documented Codex OTEL config keys:
-
-| Key | Values / default | Purpose |
-|---|---|---|
-| `otel.environment` | `string`, default `dev` | Environment tag attached to emitted OTEL events. |
-| `otel.exporter` | `none`, `otlp-http`, `otlp-grpc` | Log exporter selection. |
-| `otel.exporter.<id>.endpoint` | — | OTEL log exporter endpoint. |
-| `otel.exporter.<id>.headers` | — | Static headers for OTEL log exporter requests. |
-| `otel.exporter.<id>.protocol` | `binary`, `json` | OTLP/HTTP protocol for the log exporter. |
-| `otel.exporter.<id>.tls.*` | — | TLS settings for the log exporter. |
-| `otel.trace_exporter` | `none`, `otlp-http`, `otlp-grpc` | Trace exporter selection. |
-| `otel.trace_exporter.<id>.endpoint` | — | OTEL trace exporter endpoint. |
-| `otel.trace_exporter.<id>.headers` | — | Static headers for OTEL trace exporter requests. |
-| `otel.trace_exporter.<id>.protocol` | `binary`, `json` | OTLP/HTTP protocol for the trace exporter. |
-| `otel.trace_exporter.<id>.tls.*` | — | TLS settings for the trace exporter. |
-| `otel.metrics_exporter` | `none`, `statsig`, `otlp-http`, `otlp-grpc`; default `statsig` | Metrics exporter selection. |
-| `otel.log_user_prompt` | `boolean` | Export raw user prompts with OTEL logs. |
 
 ## Copilot CLI
 
@@ -101,27 +103,16 @@ Run Copilot CLI with telemetry enabled:
 ./scripts/copilot-cli-otel.sh
 ```
 
-Notes:
+The wrapper sets these defaults:
 
-- The collector listens on `127.0.0.1:4318` for Copilot OTLP HTTP export.
-- The wrapper hardcodes `OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4318`. Other Copilot OTEL settings, like `OTEL_SERVICE_NAME` or `OTEL_RESOURCE_ATTRIBUTES`, can still be passed through the environment.
-- Grafana includes the `Copilot CLI Observability` dashboard in the `Agents` folder, focused on traces and metrics.
+- `OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4318`
+- `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE=cumulative`
+- `COPILOT_OTEL_EXPORTER_TYPE=otlp-http`
+- `COPILOT_OTEL_ENABLED=true`
+- `OTEL_SERVICE_NAME=github-copilot`
+- `COPILOT_OTEL_SOURCE_NAME=github.copilot`
+- `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=false`
 
 Official reference:
 
 - https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference
-
-Documented Copilot OTEL environment variables:
-
-| Variable | Default | Purpose |
-|---|---|---|
-| `COPILOT_OTEL_ENABLED` | `false` | Explicitly enable OTel. |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | unset | OTLP endpoint URL; also auto-enables OTel. |
-| `COPILOT_OTEL_EXPORTER_TYPE` | `otlp-http` | Exporter type: `otlp-http` or `file`. |
-| `COPILOT_OTEL_FILE_EXPORTER_PATH` | unset | Write all signals to a JSON-lines file; also auto-enables OTel. |
-| `OTEL_SERVICE_NAME` | `github-copilot` | Resource `service.name`. |
-| `OTEL_RESOURCE_ATTRIBUTES` | unset | Extra resource attributes as comma-separated `key=value` pairs. |
-| `COPILOT_OTEL_SOURCE_NAME` | `github.copilot` | Instrumentation scope name. |
-| `OTEL_EXPORTER_OTLP_HEADERS` | unset | OTLP exporter auth or custom headers. |
-| `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT` | `false` | Capture full prompt/response content, tool arguments/results, and system/tool metadata. |
-| `OTEL_LOG_LEVEL` | unset | OTEL diagnostic log level: `NONE`, `ERROR`, `WARN`, `INFO`, `DEBUG`, `VERBOSE`, `ALL`. |

@@ -1361,22 +1361,290 @@
     },
     {
       "datasource": {
-        "type": "grafana",
-        "uid": "-- Grafana --"
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 12,
+        "h": 4,
+        "w": 6,
         "x": 12,
         "y": 54
       },
       "id": 36,
       "options": {
-        "content": "### Token Usage\n\nCopilot token usage is present in Jaeger traces in this stack, but it is not exported to Prometheus, so there is no live token chart to render here yet.\n\nVerified live trace fields\n- `gen_ai.usage.input_tokens`\n- `gen_ai.usage.cache_read.input_tokens`\n- `gen_ai.usage.output_tokens`\n- `gen_ai.usage.reasoning.output_tokens`\n- `github.copilot.turn_count`\n- `github.copilot.session.usage_info` log fields such as `github.copilot.current_tokens`\n\nUse Jaeger with service `github-copilot` to inspect per-trace token usage. To graph tokens here, the collector would need to export those values as metrics or logs.",
-        "mode": "markdown"
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "title": "Token Usage",
-      "type": "text"
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(max_over_time({__name__=~\"gen_ai_client_token_usage(_tokens)?_sum\",service_name=~\"$service_name\"}[$__range]))",
+          "legendFormat": "total",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Total Tokens",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 54
+      },
+      "id": 37,
+      "options": {
+        "displayMode": "gradient",
+        "maxVizHeight": 300,
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum by (gen_ai_token_type) (max_over_time({__name__=~\"gen_ai_client_token_usage(_tokens)?_sum\",service_name=~\"$service_name\"}[$__range]))",
+          "legendFormat": "{{gen_ai_token_type}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Tokens By Type",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 12,
+        "y": 58
+      },
+      "id": 38,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum by (gen_ai_request_model, gen_ai_token_type) (max_over_time({__name__=~\"gen_ai_client_token_usage(_tokens)?_sum\",service_name=~\"$service_name\"}[$__range]))",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Tokens By Model",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "tokens",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 63
+      },
+      "id": 39,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum by (gen_ai_token_type) ({__name__=~\"gen_ai_client_token_usage(_tokens)?_sum\",service_name=~\"$service_name\"})",
+          "legendFormat": "{{gen_ai_token_type}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Cumulative Token Usage",
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -1387,11 +1655,11 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 63
+        "y": 73
       },
       "id": 34,
       "options": {
-        "content": "### Useful Explore queries\n\nPrometheus\n- `sum by (span_name) (max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\"}[$__range]))`\n- `sum by (model) (label_replace(max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\",span_name=~\"chat .+\"}[$__range]), \"model\", \"$1\", \"span_name\", \"chat (.+)\"))`\n- `sum by (tool) (label_replace(max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\",span_name=~\"execute_tool .+\"}[$__range]), \"tool\", \"$1\", \"span_name\", \"execute_tool (.+)\"))`\n- `sum by (mcp_tool) (label_replace(max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\",span_name=~\"execute_tool github-mcp-server-.+\"}[$__range]), \"mcp_tool\", \"$1\", \"span_name\", \"execute_tool (github-mcp-server-.+)\"))`\n- `histogram_quantile(0.95, sum by (le, tool) (label_replace(max_over_time(traces_span_metrics_duration_milliseconds_bucket{service_name=~\"$service_name\",span_name=~\"execute_tool .+\"}[$__range]), \"tool\", \"$1\", \"span_name\", \"execute_tool (.+)\")))`\n\nJaeger\n- Search service `github-copilot` to inspect per-trace token and turn metadata.\n\nNotes\n- This dashboard mirrors the Codex layout where the underlying Copilot telemetry makes that possible: overview stats, operation totals, model, tool, and MCP breakdowns, distributions, and latency.\n- The old Copilot dashboard used obsolete metric names. The collector currently exports `traces_span_metrics_*`, not `traces_spanmetrics_*`.\n- Copilot token usage and turn details are present in Jaeger trace tags and logs, but they are not exported as Prometheus metrics by this stack.\n- This stack does not ship Copilot logs to Loki, so there are no Copilot log panels here.\n- The default service name in the current local dataset is `github-copilot`.",
+        "content": "### Useful Explore queries\n\nPrometheus\n- `sum by (span_name) (max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\"}[$__range]))`\n- `sum by (gen_ai_token_type) (max_over_time({__name__=~\"gen_ai_client_token_usage(_tokens)?_sum\",service_name=~\"$service_name\"}[$__range]))`\n- `sum by (model) (label_replace(max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\",span_name=~\"chat .+\"}[$__range]), \"model\", \"$1\", \"span_name\", \"chat (.+)\"))`\n- `sum by (tool) (label_replace(max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\",span_name=~\"execute_tool .+\"}[$__range]), \"tool\", \"$1\", \"span_name\", \"execute_tool (.+)\"))`\n- `histogram_quantile(0.95, sum by (le, tool) (label_replace(max_over_time(traces_span_metrics_duration_milliseconds_bucket{service_name=~\"$service_name\",span_name=~\"execute_tool .+\"}[$__range]), \"tool\", \"$1\", \"span_name\", \"execute_tool (.+)\")))`\n\nTempo\n- Search service `github-copilot` to inspect per-trace token and turn metadata.\n\nNotes\n- Token panels use Copilot's `gen_ai.client.token.usage` OTLP metric after Prometheus name normalization.\n- Trace-derived operation panels come from the collector `spanmetrics` connector and export `traces_span_metrics_*`.\n- Per-trace token and turn details can still be inspected in Tempo tags and logs.\n- The default service name in the current local dataset is `github-copilot`.",
         "mode": "markdown"
       },
       "title": "Query Notes",
@@ -1405,7 +1673,7 @@
     "copilot",
     "otel",
     "prometheus",
-    "jaeger"
+    "tempo"
   ],
   "templating": {
     "list": [

@@ -1,7 +1,3 @@
-extensions:
-  health_check:
-    endpoint: 0.0.0.0:13133
-
 receivers:
   otlp:
     protocols:
@@ -9,32 +5,42 @@ receivers:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
+        cors:
+          allowed_origins:
+            - http://*
+  prometheus/collector:
+    config:
+      scrape_configs:
+        - job_name: opentelemetry-collector
+          scrape_interval: 1s
+          static_configs:
+            - targets:
+                - 127.0.0.1:8888
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+    path: /ready
 
 processors:
-  memory_limiter:
-    check_interval: 5s
-    limit_mib: 256
-    spike_limit_mib: 64
   batch:
-    timeout: 5s
-    send_batch_size: 1024
 
 connectors:
   spanmetrics:
 
 exporters:
-  debug:
-    verbosity: basic
-  otlp/jaeger:
-    endpoint: jaeger:4317
-    tls:
-      insecure: true
-  otlphttp/loki:
-    endpoint: http://loki:3100/otlp
   prometheus:
     endpoint: 0.0.0.0:9464
     resource_to_telemetry_conversion:
       enabled: true
+  otlphttp/tempo:
+    endpoint: http://127.0.0.1:4418
+  otlphttp/loki:
+    endpoint: http://127.0.0.1:3100/otlp
+  otlp/profiles:
+    endpoint: 127.0.0.1:4040
+    tls:
+      insecure: true
 
 service:
   extensions:
@@ -44,28 +50,28 @@ service:
       receivers:
         - otlp
       processors:
-        - memory_limiter
         - batch
       exporters:
-        - debug
-        - otlp/jaeger
+        - otlphttp/tempo
         - spanmetrics
     metrics:
       receivers:
         - otlp
+        - prometheus/collector
         - spanmetrics
       processors:
-        - memory_limiter
         - batch
       exporters:
-        - debug
         - prometheus
     logs:
       receivers:
         - otlp
       processors:
-        - memory_limiter
         - batch
       exporters:
-        - debug
         - otlphttp/loki
+    profiles:
+      receivers:
+        - otlp
+      exporters:
+        - otlp/profiles
