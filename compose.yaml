@@ -1,8 +1,8 @@
-name: agents-otel-local
+name: otel
 
 services:
   lgtm:
-    image: ${LGTM_IMAGE:-docker.io/grafana/otel-lgtm:0.28.0}
+    image: docker.io/grafana/otel-lgtm:0.28.0
     restart: unless-stopped
     ports:
       - "127.0.0.1:3000:3000" # Grafana UI
