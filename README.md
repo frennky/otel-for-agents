@@ -76,8 +76,9 @@ Grafana is provisioned with the bundled LGTM datasources. The `Agents` folder in
 - Copilot sends OTLP/HTTP to `127.0.0.1:4318`.
 - The shared collector sends traces to Tempo, logs to Loki, and metrics to a Prometheus scrape endpoint.
 - Prometheus scrapes the collector on the internal `127.0.0.1:9464` endpoint.
-- The collector also uses `spanmetrics` so Copilot trace activity can be graphed as Prometheus metrics.
-- Copilot token panels use the `gen_ai.client.token.usage` OTLP metric after Prometheus name normalization.
+- The collector also uses `spanmetrics` for the Copilot span overview and detailed trace-operation panels.
+- Copilot usage panels use the CLI's native `gen_ai.*` and `github.copilot.*` metrics for model calls, agent invocations, tool calls, MCP connections, durations, and tokens.
+- Both dashboards default to the last 24 hours and use snapshot queries so completed CLI runs remain visible after their exporters stop.
 
 ## Codex CLI
 
@@ -106,6 +107,7 @@ Run Copilot CLI with telemetry enabled:
 The wrapper sets these defaults:
 
 - `OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4318`
+- `OTEL_EXPORTER_OTLP_PROTOCOL=http/json` (the Copilot default)
 - `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE=cumulative`
 - `COPILOT_OTEL_EXPORTER_TYPE=otlp-http`
 - `COPILOT_OTEL_ENABLED=true`
@@ -116,3 +118,5 @@ The wrapper sets these defaults:
 Official reference:
 
 - https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference
+
+Current Copilot CLI releases emit OTel GenAI semantic-convention spans and metrics. In Prometheus, dotted OTLP names are normalized to names such as `gen_ai_client_operation_duration_seconds`, `gen_ai_client_token_usage`, and `github_copilot_tool_call_count_total`.

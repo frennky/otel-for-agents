@@ -543,7 +543,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (model, token_type) (max_over_time(codex_turn_token_usage_sum{model=~\"$model\", token_type=~\"input|cached_input|output|reasoning_output\"}[$__range]))",
+          "expr": "sum by (model, token_type) (max_over_time(codex_turn_token_usage_sum{model=~\"$model\", token_type=~\"input|cached_input|cache_write_input|output|reasoning_output\"}[$__range]))",
           "legendFormat": "{{model}} / {{token_type}}",
           "range": true,
           "refId": "A"
@@ -596,7 +596,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (model, token_type) (max_over_time(codex_turn_token_usage_sum{model=~\"$model\", token_type=~\"input|cached_input|output|reasoning_output\"}[$__range]))",
+          "expr": "sum by (model, token_type) (max_over_time(codex_turn_token_usage_sum{model=~\"$model\", token_type=~\"input|cached_input|cache_write_input|output|reasoning_output\"}[$__range]))",
           "instant": true,
           "legendFormat": "{{model}} / {{token_type}}",
           "range": false,
@@ -939,7 +939,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(max_over_time(codex_turn_token_usage_sum{model=~\"$model\", token_type=\"cached_input\"}[$__range])) / clamp_min(sum(max_over_time(codex_turn_token_usage_sum{model=~\"$model\", token_type=~\"input|cached_input\"}[$__range])), 1)",
+          "expr": "sum(max_over_time(codex_turn_token_usage_sum{model=~\"$model\", token_type=\"cached_input\"}[$__range])) / clamp_min(sum(max_over_time(codex_turn_token_usage_sum{model=~\"$model\", token_type=\"input\"}[$__range])), 1)",
           "instant": true,
           "range": false,
           "refId": "A"
@@ -1712,7 +1712,7 @@
       },
       "id": 10,
       "options": {
-        "content": "### Useful Explore queries\n\nPrometheus\n- `sum by (model, token_type) (max_over_time(codex_turn_token_usage_sum[$__range]))`\n- `topk(20, sum by (kind) (max_over_time(codex_websocket_event_total[$__range])))`\n- `histogram_quantile(0.95, sum by (le, tool) (max_over_time(codex_tool_call_duration_ms_milliseconds_bucket[$__range])))`\n- `histogram_quantile(0.95, sum by (le, cache) (max_over_time(codex_mcp_tools_list_duration_ms_milliseconds_bucket[$__range])))`\n\nLoki\n- `{service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.user_prompt\"`\n- `{service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.tool_result\"`\n- `{service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\"`\n\nNotes\n- The top token cards are adapted from the SigNoz Codex dashboard pattern: `Total`, `Input`, `Output`, `Cached`, and `Cache Utilization Rate`.\n- Use `Conversation ID` with an exact value or regex to drill into one session.\n- This dashboard is snapshot-oriented: the Prometheus panels use `max_over_time(...)` so totals remain visible after a run finishes.\n- MCP panels currently show discovery and cache telemetry. No `mcp__*` tool-result events were observed in this local dataset yet.\n- Codex Loki stream labels differ by CLI/runtime version. This dashboard matches both `codex_exec` and `codex_cli_rs`.\n- Loki stores OTLP attributes as structured metadata with dots converted to underscores, so `event.name` becomes `event_name` and `conversation.id` becomes `conversation_id`.",
+        "content": "### Useful Explore queries\n\nPrometheus\n- `sum by (model, token_type) (max_over_time(codex_turn_token_usage_sum{model=~\"$model\",token_type=~\"input|cached_input|cache_write_input|output|reasoning_output\"}[$__range]))`\n- `topk(20, sum by (kind) (max_over_time(codex_websocket_event_total{model=~\"$model\"}[$__range])))`\n- `histogram_quantile(0.95, sum by (le, tool) (max_over_time(codex_tool_call_duration_ms_milliseconds_bucket{model=~\"$model\"}[$__range])))`\n- `histogram_quantile(0.95, sum by (le, cache) (max_over_time(codex_mcp_tools_list_duration_ms_milliseconds_bucket[$__range])))`\n\nLoki\n- `{service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.user_prompt\" | model=~\"$model\" | conversation_id=~\"$conversation_id\"`\n- `{service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.tool_result\" | model=~\"$model\" | conversation_id=~\"$conversation_id\"`\n- `{service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\"`\n\nNotes\n- The top token cards are adapted from the SigNoz Codex dashboard pattern: `Total`, `Input`, `Output`, `Cached`, and `Cache Utilization Rate`.\n- Use `Conversation ID` with an exact value or regex to drill into one session.\n- This dashboard is snapshot-oriented: the Prometheus panels use `max_over_time(...)` so totals remain visible after a run finishes.\n- MCP panels currently show discovery and cache telemetry. No `mcp__*` tool-result events were observed in this local dataset yet.\n- Codex Loki stream labels differ by CLI/runtime version. This dashboard matches both `codex_exec` and `codex_cli_rs`.\n- Loki stores OTLP attributes as structured metadata with dots converted to underscores, so `event.name` becomes `event_name` and `conversation.id` becomes `conversation_id`.",
         "mode": "markdown"
       },
       "title": "Query Notes",
@@ -1781,13 +1781,13 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Codex CLI Observability",
   "uid": "codex-cli-observability",
-  "version": 8,
+  "version": 10,
   "weekStart": ""
 }

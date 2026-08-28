@@ -150,7 +150,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\",span_name=~\"chat .+\"}[$__range]))",
+          "expr": "sum(max_over_time(gen_ai_client_operation_duration_seconds_count{service_name=~\"$service_name\",gen_ai_operation_name=\"chat\"}[$__range])) or vector(0)",
           "instant": true,
           "range": false,
           "refId": "A"
@@ -219,7 +219,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\",span_name=~\"execute_tool .+\"}[$__range]))",
+          "expr": "sum(max_over_time(github_copilot_tool_call_count_total{service_name=~\"$service_name\"}[$__range])) or vector(0)",
           "instant": true,
           "range": false,
           "refId": "A"
@@ -357,13 +357,13 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\",span_name=~\"execute_tool github-mcp-server-.+\"}[$__range]))",
+          "expr": "sum(max_over_time(github_copilot_mcp_server_connection_count_total{service_name=~\"$service_name\"}[$__range])) or vector(0)",
           "instant": true,
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "MCP Tool Calls",
+      "title": "MCP Connections",
       "type": "stat"
     },
     {
@@ -426,13 +426,13 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\",span_kind=\"SPAN_KIND_INTERNAL\"}[$__range]))",
+          "expr": "sum(max_over_time(gen_ai_invoke_agent_duration_seconds_count{service_name=~\"$service_name\"}[$__range])) or vector(0)",
           "instant": true,
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Internal Spans",
+      "title": "Agent Invocations",
       "type": "stat"
     },
     {
@@ -612,7 +612,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (span_name) (traces_span_metrics_calls_total{service_name=~\"$service_name\"})",
+          "expr": "sum by (span_name) (max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\"}[$__range]))",
           "legendFormat": "{{span_name}}",
           "range": true,
           "refId": "A"
@@ -828,8 +828,8 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (model) (label_replace(traces_span_metrics_calls_total{service_name=~\"$service_name\",span_name=~\"chat .+\"}, \"model\", \"$1\", \"span_name\", \"chat (.+)\"))",
-          "legendFormat": "{{model}}",
+          "expr": "sum by (gen_ai_response_model) (max_over_time(gen_ai_client_operation_duration_seconds_count{service_name=~\"$service_name\",gen_ai_operation_name=\"chat\"}[$__range]))",
+          "legendFormat": "{{gen_ai_response_model}}",
           "range": true,
           "refId": "A"
         }
@@ -881,14 +881,14 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (status_code) (max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\"}[$__range]))",
+          "expr": "sum by (success) (max_over_time(github_copilot_tool_call_count_total{service_name=~\"$service_name\"}[$__range]))",
           "instant": true,
           "legendFormat": "{{status_code}}",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Latest Reported Status Totals",
+      "title": "Latest Reported Tool Calls by Success",
       "type": "bargauge"
     },
     {
@@ -930,7 +930,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (tool) (label_replace(traces_span_metrics_calls_total{service_name=~\"$service_name\",span_name=~\"execute_tool .+\"}, \"tool\", \"$1\", \"span_name\", \"execute_tool (.+)\"))",
+          "expr": "sum by (gen_ai_tool_name, success) (max_over_time(github_copilot_tool_call_count_total{service_name=~\"$service_name\"}[$__range]))",
           "legendFormat": "{{tool}}",
           "range": true,
           "refId": "A"
@@ -992,9 +992,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (model) (label_replace(max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\",span_name=~\"chat .+\"}[$__range]), \"model\", \"$1\", \"span_name\", \"chat (.+)\"))",
+          "expr": "sum by (gen_ai_response_model) (max_over_time(gen_ai_client_operation_duration_seconds_count{service_name=~\"$service_name\",gen_ai_operation_name=\"chat\"}[$__range]))",
           "instant": true,
-          "legendFormat": "{{model}}",
+          "legendFormat": "{{gen_ai_response_model}}",
           "range": false,
           "refId": "A"
         }
@@ -1055,14 +1055,14 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (mcp_tool) (label_replace(max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\",span_name=~\"execute_tool github-mcp-server-.+\"}[$__range]), \"mcp_tool\", \"$1\", \"span_name\", \"execute_tool (github-mcp-server-.+)\"))",
+          "expr": "sum by (transport, outcome) (max_over_time(github_copilot_mcp_server_connection_count_total{service_name=~\"$service_name\"}[$__range]))",
           "instant": true,
           "legendFormat": "{{mcp_tool}}",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "MCP Tool Distribution",
+      "title": "MCP Connection Distribution",
       "type": "piechart"
     },
     {
@@ -1118,7 +1118,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (tool) (label_replace(max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\",span_name=~\"execute_tool .+\"}[$__range]), \"tool\", \"$1\", \"span_name\", \"execute_tool (.+)\"))",
+          "expr": "sum by (gen_ai_tool_name) (max_over_time(github_copilot_tool_call_count_total{service_name=~\"$service_name\"}[$__range]))",
           "instant": true,
           "legendFormat": "{{tool}}",
           "range": false,
@@ -1138,7 +1138,7 @@
           "color": {
             "mode": "continuous-RdYlGr"
           },
-          "unit": "ms"
+          "unit": "s"
         },
         "overrides": []
       },
@@ -1172,14 +1172,14 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le, model) (label_replace(max_over_time(traces_span_metrics_duration_milliseconds_bucket{service_name=~\"$service_name\",span_name=~\"chat .+\"}[$__range]), \"model\", \"$1\", \"span_name\", \"chat (.+)\")))",
+          "expr": "histogram_quantile(0.95, sum by (le, gen_ai_response_model) (max_over_time(gen_ai_client_operation_duration_seconds_bucket{service_name=~\"$service_name\",gen_ai_operation_name=\"chat\"}[$__range])))",
           "instant": true,
-          "legendFormat": "{{model}}",
+          "legendFormat": "{{gen_ai_response_model}}",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Latest Reported Model Call P95 by Model",
+      "title": "Latest Reported Model Call P95 by Model (seconds)",
       "type": "bargauge"
     },
     {
@@ -1192,7 +1192,7 @@
           "color": {
             "mode": "continuous-RdYlGr"
           },
-          "unit": "ms"
+          "unit": "s"
         },
         "overrides": []
       },
@@ -1226,14 +1226,14 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le, tool) (label_replace(max_over_time(traces_span_metrics_duration_milliseconds_bucket{service_name=~\"$service_name\",span_name=~\"execute_tool .+\"}[$__range]), \"tool\", \"$1\", \"span_name\", \"execute_tool (.+)\")))",
+          "expr": "histogram_quantile(0.95, sum by (le, gen_ai_tool_name) (max_over_time(gen_ai_execute_tool_duration_seconds_bucket{service_name=~\"$service_name\"}[$__range])))",
           "instant": true,
-          "legendFormat": "{{tool}}",
+          "legendFormat": "{{gen_ai_tool_name}}",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Latest Reported Tool Call P95 by Tool",
+      "title": "Latest Reported Tool Call P95 by Tool (seconds)",
       "type": "bargauge"
     },
     {
@@ -1296,13 +1296,13 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\",span_name=~\"execute_tool github-mcp-server-.+\"}[$__range])) / clamp_min(sum(max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\",span_name=~\"execute_tool .+\"}[$__range])), 1)",
+          "expr": "sum(max_over_time(github_copilot_tool_call_count_total{service_name=~\"$service_name\",success=\"true\"}[$__range])) / clamp_min(sum(max_over_time(github_copilot_tool_call_count_total{service_name=~\"$service_name\"}[$__range])), 1)",
           "instant": true,
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "MCP Tool Call Share",
+      "title": "Tool Success Rate",
       "type": "stat"
     },
     {
@@ -1349,14 +1349,14 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (mcp_tool) (label_replace(max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\",span_name=~\"execute_tool github-mcp-server-.+\"}[$__range]), \"mcp_tool\", \"$1\", \"span_name\", \"execute_tool (github-mcp-server-.+)\"))",
+          "expr": "sum by (transport, outcome) (max_over_time(github_copilot_mcp_server_connection_count_total{service_name=~\"$service_name\"}[$__range]))",
           "instant": true,
           "legendFormat": "{{mcp_tool}}",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Latest Reported MCP Tool Call Totals by MCP Tool",
+      "title": "Latest Reported MCP Connections",
       "type": "bargauge"
     },
     {
@@ -1659,7 +1659,7 @@
       },
       "id": 34,
       "options": {
-        "content": "### Useful Explore queries\n\nPrometheus\n- `sum by (span_name) (max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\"}[$__range]))`\n- `sum by (gen_ai_token_type) (max_over_time({__name__=~\"gen_ai_client_token_usage(_tokens)?_sum\",service_name=~\"$service_name\"}[$__range]))`\n- `sum by (model) (label_replace(max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\",span_name=~\"chat .+\"}[$__range]), \"model\", \"$1\", \"span_name\", \"chat (.+)\"))`\n- `sum by (tool) (label_replace(max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\",span_name=~\"execute_tool .+\"}[$__range]), \"tool\", \"$1\", \"span_name\", \"execute_tool (.+)\"))`\n- `histogram_quantile(0.95, sum by (le, tool) (label_replace(max_over_time(traces_span_metrics_duration_milliseconds_bucket{service_name=~\"$service_name\",span_name=~\"execute_tool .+\"}[$__range]), \"tool\", \"$1\", \"span_name\", \"execute_tool (.+)\")))`\n\nTempo\n- Search service `github-copilot` to inspect per-trace token and turn metadata.\n\nNotes\n- Token panels use Copilot's `gen_ai.client.token.usage` OTLP metric after Prometheus name normalization.\n- Trace-derived operation panels come from the collector `spanmetrics` connector and export `traces_span_metrics_*`.\n- Per-trace token and turn details can still be inspected in Tempo tags and logs.\n- The default service name in the current local dataset is `github-copilot`.",
+        "content": "### Useful Explore queries\n\nPrometheus\n- `sum by (gen_ai_response_model) (max_over_time(gen_ai_client_operation_duration_seconds_count{service_name=~\"$service_name\",gen_ai_operation_name=\"chat\"}[$__range]))`\n- `sum by (gen_ai_token_type) (max_over_time({__name__=~\"gen_ai_client_token_usage(_tokens)?_sum\",service_name=~\"$service_name\"}[$__range]))`\n- `sum by (gen_ai_tool_name, success) (max_over_time(github_copilot_tool_call_count_total{service_name=~\"$service_name\"}[$__range]))`\n- `sum by (transport, outcome) (max_over_time(github_copilot_mcp_server_connection_count_total{service_name=~\"$service_name\"}[$__range]))`\n- `sum by (span_name) (max_over_time(traces_span_metrics_calls_total{service_name=~\"$service_name\"}[$__range]))`\n\nTempo\n- Search service `github-copilot` to inspect complete `invoke_agent`, `chat`, and `execute_tool` span trees.\n\nNotes\n- Usage panels use Copilot's native OTel GenAI and `github.copilot.*` metrics after Prometheus name normalization.\n- Token queries accept both Prometheus names emitted across current Copilot/OpenTelemetry exporter versions.\n- The span overview still comes from the collector `spanmetrics` connector and exports `traces_span_metrics_*`.\n- Snapshot queries keep the last reported cumulative values visible after a CLI process exits.\n- Empty error or activity cards render zero; detailed distributions only appear after that activity occurs.",
         "mode": "markdown"
       },
       "title": "Query Notes",
@@ -1709,13 +1709,13 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Copilot CLI Observability",
   "uid": "copilot-cli-observability",
-  "version": 3,
+  "version": 4,
   "weekStart": ""
 }
