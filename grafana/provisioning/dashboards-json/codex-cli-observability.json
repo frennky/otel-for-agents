@@ -23,8 +23,8 @@
   "panels": [
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -77,11 +77,11 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum(max_over_time(codex_thread_started_total{model=~\"$model\"}[$__range]))",
+          "expr": "sum(count_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.conversation_starts\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" [$__range]))",
           "instant": true,
           "range": false,
           "refId": "A"
@@ -92,8 +92,8 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -146,11 +146,11 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum(max_over_time(codex_conversation_turn_count_total{model=~\"$model\"}[$__range]))",
+          "expr": "sum(count_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.user_prompt\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" [$__range]))",
           "instant": true,
           "range": false,
           "refId": "A"
@@ -161,8 +161,8 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -215,11 +215,11 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum(max_over_time(codex_websocket_request_total{model=~\"$model\"}[$__range]))",
+          "expr": "sum(count_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.websocket_request\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" [$__range]))",
           "instant": true,
           "range": false,
           "refId": "A"
@@ -230,8 +230,8 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -284,11 +284,11 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum(max_over_time(codex_turn_token_usage_sum{model=~\"$model\", token_type=\"total\"}[$__range]))",
+          "expr": "sum(sum_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap tool_token_count [$__range]))",
           "instant": true,
           "range": false,
           "refId": "A"
@@ -299,8 +299,8 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -353,11 +353,11 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum(max_over_time(codex_turn_token_usage_sum{model=~\"$model\", token_type=\"input\"}[$__range]))",
+          "expr": "sum(sum_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap input_token_count [$__range]))",
           "instant": true,
           "range": false,
           "refId": "A"
@@ -368,8 +368,8 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -422,11 +422,11 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum(max_over_time(codex_turn_token_usage_sum{model=~\"$model\", token_type=\"output\"}[$__range]))",
+          "expr": "sum(sum_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap output_token_count [$__range]))",
           "instant": true,
           "range": false,
           "refId": "A"
@@ -437,8 +437,8 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -491,11 +491,11 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum(max_over_time(codex_turn_token_usage_sum{model=~\"$model\", token_type=\"cached_input\"}[$__range]))",
+          "expr": "sum(sum_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap cached_token_count [$__range]))",
           "instant": true,
           "range": false,
           "refId": "A"
@@ -506,8 +506,8 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -539,23 +539,67 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum by (model, token_type) (max_over_time(codex_turn_token_usage_sum{model=~\"$model\", token_type=~\"input|cached_input|cache_write_input|output|reasoning_output\"}[$__range]))",
-          "legendFormat": "{{model}} / {{token_type}}",
+          "expr": "sum by (model) (sum_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap input_token_count [$__auto]))",
+          "legendFormat": "{{model}} / input",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum by (model) (sum_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap cached_token_count [$__auto]))",
+          "legendFormat": "{{model}} / cached_input",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum by (model) (sum_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap output_token_count [$__auto]))",
+          "legendFormat": "{{model}} / output",
+          "range": true,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum by (model) (sum_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap reasoning_token_count [$__auto]))",
+          "legendFormat": "{{model}} / reasoning_output",
+          "range": true,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum by (model) (sum_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap cache_write_token_count [$__auto]))",
+          "legendFormat": "{{model}} / cache_write_input",
+          "range": true,
+          "refId": "E"
         }
       ],
-      "title": "Latest Reported Token Totals by Model and Type",
+      "title": "Token Usage over Time by Model and Type",
       "type": "timeseries"
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -564,7 +608,68 @@
           },
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "A"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "${__field.labels.model} / input"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "${__field.labels.model} / cached_input"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "C"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "${__field.labels.model} / output"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "D"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "${__field.labels.model} / reasoning_output"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "E"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "${__field.labels.model} / cache_write_input"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 9,
@@ -592,24 +697,72 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum by (model, token_type) (max_over_time(codex_turn_token_usage_sum{model=~\"$model\", token_type=~\"input|cached_input|cache_write_input|output|reasoning_output\"}[$__range]))",
+          "expr": "sum by (model) (sum_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap input_token_count [$__range]))",
           "instant": true,
-          "legendFormat": "{{model}} / {{token_type}}",
+          "legendFormat": "{{model}} / input",
           "range": false,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum by (model) (sum_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap cached_token_count [$__range]))",
+          "instant": true,
+          "legendFormat": "{{model}} / cached_input",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum by (model) (sum_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap output_token_count [$__range]))",
+          "instant": true,
+          "legendFormat": "{{model}} / output",
+          "range": false,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum by (model) (sum_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap reasoning_token_count [$__range]))",
+          "instant": true,
+          "legendFormat": "{{model}} / reasoning_output",
+          "range": false,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum by (model) (sum_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap cache_write_token_count [$__range]))",
+          "instant": true,
+          "legendFormat": "{{model}} / cache_write_input",
+          "range": false,
+          "refId": "E"
         }
       ],
-      "title": "Latest Reported Token Totals",
+      "title": "Token Totals by Model and Type",
       "type": "bargauge"
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -662,23 +815,23 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum(max_over_time(codex_turn_token_usage_sum{model=~\"$model\", token_type=\"total\"}[$__range])) / clamp_min(sum(max_over_time(codex_turn_token_usage_count{model=~\"$model\", token_type=\"total\"}[$__range])), 1)",
+          "expr": "sum(sum_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap tool_token_count [$__range])) / sum(count_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" [$__range]))",
           "instant": true,
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Latest Reported Average Tokens per Turn",
+      "title": "Average Tokens per Model Call",
       "type": "stat"
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -708,18 +861,18 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum by (model) (max_over_time(codex_turn_token_usage_sum{model=~\"$model\", token_type=\"total\"}[$__range])) / clamp_min(sum by (model) (max_over_time(codex_turn_token_usage_count{model=~\"$model\", token_type=\"total\"}[$__range])), 1)",
+          "expr": "sum by (model) (sum_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap tool_token_count [$__range])) / sum by (model) (count_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" [$__range]))",
           "format": "table",
           "instant": true,
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Latest Reported Average Tokens per Turn by Model",
+      "title": "Average Tokens per Model Call by Model",
       "transformations": [
         {
           "id": "organize",
@@ -728,7 +881,7 @@
               "Time": true
             },
             "renameByName": {
-              "Value": "avg_tokens_per_turn"
+              "Value": "avg_tokens_per_model_call"
             }
           }
         }
@@ -737,8 +890,8 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -770,23 +923,23 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le, model) (max_over_time(codex_turn_e2e_duration_ms_milliseconds_bucket{model=~\"$model\"}[$__range])))",
+          "expr": "quantile_over_time(0.95, {service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.turn_ttft\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap duration_ms [$__auto]) by (model)",
           "legendFormat": "{{model}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Latest Reported P95 Turn Duration by Model",
+      "title": "P95 Time to First Token by Model",
       "type": "timeseries"
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -818,23 +971,23 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum by (model, success) (max_over_time(codex_websocket_request_total{model=~\"$model\"}[$__range]))",
+          "expr": "sum by (model, success) (count_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.websocket_request\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" [$__auto]))",
           "legendFormat": "{{model}} / success={{success}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Latest Reported Model Call Totals by Model and Success",
+      "title": "WebSocket Requests over Time by Model and Success",
       "type": "timeseries"
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -866,23 +1019,23 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum by (tool, success) (max_over_time(codex_tool_call_total{model=~\"$model\"}[$__range]))",
-          "legendFormat": "{{tool}} / success={{success}}",
+          "expr": "sum by (tool_name, success) (count_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.tool_result\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" [$__auto]))",
+          "legendFormat": "{{tool_name}} / success={{success}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Latest Reported Tool Call Totals by Tool",
+      "title": "Tool Calls over Time by Tool and Success",
       "type": "timeseries"
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -935,11 +1088,11 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum(max_over_time(codex_turn_token_usage_sum{model=~\"$model\", token_type=\"cached_input\"}[$__range])) / clamp_min(sum(max_over_time(codex_turn_token_usage_sum{model=~\"$model\", token_type=\"input\"}[$__range])), 1)",
+          "expr": "sum(sum_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap cached_token_count [$__range])) / sum(sum_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap input_token_count [$__range]))",
           "instant": true,
           "range": false,
           "refId": "A"
@@ -950,8 +1103,8 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -988,24 +1141,24 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "topk(12, sum by (kind) (max_over_time(codex_websocket_event_total{model=~\"$model\"}[$__range])))",
+          "expr": "topk(12, sum by (event_kind) (count_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" [$__range])))",
           "instant": true,
-          "legendFormat": "{{kind}}",
+          "legendFormat": "{{event_kind}}",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Latest Reported WebSocket Event Totals by Kind",
+      "title": "SSE Event Totals by Kind",
       "type": "bargauge"
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -1040,8 +1193,9 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "",
-          "values": false
+          "fields": "/^Value/",
+          "limit": 100,
+          "values": true
         },
         "tooltip": {
           "mode": "single",
@@ -1051,15 +1205,23 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum by (model) (max_over_time(codex_websocket_request_total{model=~\"$model\"}[$__range]))",
+          "expr": "sum by (model) (count_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" [$__range]))",
           "instant": true,
           "legendFormat": "{{model}}",
           "range": false,
           "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "mode": "columns"
+          }
         }
       ],
       "title": "Model Distribution",
@@ -1067,8 +1229,8 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -1103,8 +1265,9 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "",
-          "values": false
+          "fields": "/^Value/",
+          "limit": 100,
+          "values": true
         },
         "tooltip": {
           "mode": "single",
@@ -1114,15 +1277,23 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum by (model) (max_over_time(codex_turn_token_usage_sum{model=~\"$model\", token_type=\"total\"}[$__range]))",
+          "expr": "sum by (model) (sum_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap tool_token_count [$__range]))",
           "instant": true,
           "legendFormat": "{{model}}",
           "range": false,
           "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "mode": "columns"
+          }
         }
       ],
       "title": "Token Distribution by Model",
@@ -1130,8 +1301,8 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -1166,8 +1337,9 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "",
-          "values": false
+          "fields": "/^Value/",
+          "limit": 100,
+          "values": true
         },
         "tooltip": {
           "mode": "single",
@@ -1177,15 +1349,23 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum by (tool) (max_over_time(codex_tool_call_total{model=~\"$model\"}[$__range]))",
+          "expr": "sum by (tool_name) (count_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.tool_result\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" [$__range]))",
           "instant": true,
-          "legendFormat": "{{tool}}",
+          "legendFormat": "{{tool_name}}",
           "range": false,
           "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "mode": "columns"
+          }
         }
       ],
       "title": "Tool Call Distribution",
@@ -1193,8 +1373,8 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -1231,24 +1411,24 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le, tool) (max_over_time(codex_tool_call_duration_ms_milliseconds_bucket{model=~\"$model\"}[$__range])))",
+          "expr": "quantile_over_time(0.95, {service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.tool_result\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | unwrap duration_ms [$__range]) by (tool_name)",
           "instant": true,
-          "legendFormat": "{{tool}}",
+          "legendFormat": "{{tool_name}}",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Latest Reported Tool Call P95 by Tool",
+      "title": "P95 Tool Call Duration by Tool",
       "type": "bargauge"
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki",
+        "uid": "loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -1278,11 +1458,11 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "loki",
+            "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum by (session_source, is_git, auth_mode) (max_over_time(codex_thread_started_total{model=~\"$model\"}[$__range]))",
+          "expr": "sum by (originator, auth_mode, model) (count_over_time({service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.conversation_starts\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" [$__range]))",
           "format": "table",
           "instant": true,
           "range": false,
@@ -1349,7 +1529,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (cache) (max_over_time(codex_mcp_tools_list_duration_ms_milliseconds_count[$__range]))",
+          "expr": "sum by (cache) (last_over_time(codex_mcp_tools_list_duration_ms_milliseconds_count[$__range]))",
           "instant": true,
           "legendFormat": "{{cache}}",
           "range": false,
@@ -1403,7 +1583,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le, cache) (max_over_time(codex_mcp_tools_list_duration_ms_milliseconds_bucket[$__range])))",
+          "expr": "histogram_quantile(0.95, sum by (le, cache) (last_over_time(codex_mcp_tools_list_duration_ms_milliseconds_bucket[$__range])))",
           "instant": true,
           "legendFormat": "{{cache}}",
           "range": false,
@@ -1473,7 +1653,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le) (max_over_time(codex_mcp_tools_fetch_uncached_duration_ms_milliseconds_bucket[$__range])))",
+          "expr": "histogram_quantile(0.95, sum by (le) (last_over_time(codex_mcp_tools_fetch_uncached_duration_ms_milliseconds_bucket[$__range])))",
           "instant": true,
           "range": false,
           "refId": "A"
@@ -1542,7 +1722,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le) (max_over_time(codex_mcp_tools_cache_write_duration_ms_milliseconds_bucket[$__range])))",
+          "expr": "histogram_quantile(0.95, sum by (le) (last_over_time(codex_mcp_tools_cache_write_duration_ms_milliseconds_bucket[$__range])))",
           "instant": true,
           "range": false,
           "refId": "A"
@@ -1691,7 +1871,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "{service_name=~\"codex_exec|codex_cli_rs\"} | success=\"false\" | line_format \"event={{.event_name}} kind={{.event_kind}} tool={{.tool_name}} duration_ms={{.duration_ms}} conversation={{.conversation_id}}\"",
+          "expr": "{service_name=~\"codex_exec|codex_cli_rs\"} | success=\"false\" | model=~\"$model\" | conversation_id=~\"$conversation_id\" | line_format \"event={{.event_name}} kind={{.event_kind}} tool={{.tool_name}} duration_ms={{.duration_ms}} conversation={{.conversation_id}}\"",
           "queryType": "range",
           "refId": "A"
         }
@@ -1712,7 +1892,7 @@
       },
       "id": 10,
       "options": {
-        "content": "### Useful Explore queries\n\nPrometheus\n- `sum by (model, token_type) (max_over_time(codex_turn_token_usage_sum{model=~\"$model\",token_type=~\"input|cached_input|cache_write_input|output|reasoning_output\"}[$__range]))`\n- `topk(20, sum by (kind) (max_over_time(codex_websocket_event_total{model=~\"$model\"}[$__range])))`\n- `histogram_quantile(0.95, sum by (le, tool) (max_over_time(codex_tool_call_duration_ms_milliseconds_bucket{model=~\"$model\"}[$__range])))`\n- `histogram_quantile(0.95, sum by (le, cache) (max_over_time(codex_mcp_tools_list_duration_ms_milliseconds_bucket[$__range])))`\n\nLoki\n- `{service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.user_prompt\" | model=~\"$model\" | conversation_id=~\"$conversation_id\"`\n- `{service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.tool_result\" | model=~\"$model\" | conversation_id=~\"$conversation_id\"`\n- `{service_name=~\"codex_exec|codex_cli_rs\"} | event_name=\"codex.sse_event\" | event_kind=\"response.completed\" | model=~\"$model\" | conversation_id=~\"$conversation_id\"`\n\nNotes\n- The top token cards are adapted from the SigNoz Codex dashboard pattern: `Total`, `Input`, `Output`, `Cached`, and `Cache Utilization Rate`.\n- Use `Conversation ID` with an exact value or regex to drill into one session.\n- This dashboard is snapshot-oriented: the Prometheus panels use `max_over_time(...)` so totals remain visible after a run finishes.\n- MCP panels currently show discovery and cache telemetry. No `mcp__*` tool-result events were observed in this local dataset yet.\n- Codex Loki stream labels differ by CLI/runtime version. This dashboard matches both `codex_exec` and `codex_cli_rs`.\n- Loki stores OTLP attributes as structured metadata with dots converted to underscores, so `event.name` becomes `event_name` and `conversation.id` becomes `conversation_id`.",
+        "content": "### Query behavior\n\n- Period totals, model usage, token usage, calls, tools, and latency are calculated from individual Codex events in Loki. This avoids losing activity when cumulative per-process Prometheus metrics reset.\n- `Input Tokens` includes cached input, matching the `input_token_count` emitted by Codex. `Total Tokens` uses `tool_token_count`, which is input plus output for each completed model call.\n- `Model Distribution` uses completed response events, so it reflects the model that actually handled each call.\n- Use `Model regex` and `Conversation ID` to filter all event-based panels. Both accept exact values or regular expressions and default to `.*`.\n- The four MCP discovery/cache panels remain Prometheus-backed because current Codex events do not expose equivalent measurements; they display the most recently reported snapshot.\n- Codex Loki stream labels differ by CLI/runtime version. This dashboard matches both `codex_exec` and `codex_cli_rs`.\n- Loki stores OTLP attributes as structured metadata with dots converted to underscores, so `event.name` becomes `event_name` and `conversation.id` becomes `conversation_id`.",
         "mode": "markdown"
       },
       "title": "Query Notes",
@@ -1732,31 +1912,23 @@
     "list": [
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": ".*",
           "value": ".*"
         },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "definition": "label_values(codex_turn_token_usage_sum, model)",
         "hide": 0,
-        "includeAll": true,
-        "label": "Model",
-        "multi": false,
+        "label": "Model regex",
         "name": "model",
-        "options": [],
-        "query": {
-          "qryType": 1,
-          "query": "label_values(codex_turn_token_usage_sum, model)",
-          "refId": "Prometheus-model-Variable-Query"
-        },
-        "refresh": 1,
-        "regex": "",
+        "options": [
+          {
+            "selected": true,
+            "text": ".*",
+            "value": ".*"
+          }
+        ],
+        "query": ".*",
         "skipUrlSync": false,
-        "sort": 1,
-        "type": "query"
+        "type": "textbox"
       },
       {
         "current": {
